@@ -1,5 +1,6 @@
 import {
-  Directive, ElementRef, EventEmitter, Input, NgZone, OnDestroy, OnInit, Output
+  Directive, ElementRef, EventEmitter, Input, NgZone, OnDestroy, OnInit, Output,
+  SimpleChanges
 } from '@angular/core';
 import * as monacoType from 'monaco-editor';
 
@@ -59,6 +60,25 @@ export class MonacoEditorDirective implements OnInit, OnDestroy {
     if (this.getMarkers) {
       const markers = this.getMarkers(this.value) || [];
       this.monaco.editor.setModelMarkers(this.editor.getModel()!, 'citlang-diagnostics', markers);
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['value'] && this.editor) {
+      const next = this.value ?? '';
+      const model = this.editor.getModel();
+      if (model && next !== model.getValue()) {
+        model.pushEditOperations(
+          [], // selections not needed
+          [{ range: model.getFullModelRange(), text: next }],
+          () => null
+        );
+        // Recompute markers if provided
+        if (this.getMarkers) {
+          const markers = this.getMarkers(next) || [];
+          this.monaco.editor.setModelMarkers(model, 'citlang-diagnostics', markers);
+        }
+      }
     }
   }
 

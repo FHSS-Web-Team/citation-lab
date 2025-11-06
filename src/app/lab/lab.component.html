@@ -23,61 +23,67 @@
 
       <div class="row" style="margin-top: 10px;">
         <button (click)="runExtract()">Extract → Args</button>
-        <button class="secondary" (click)="autoConvertSpecToTemplate()">Auto-convert Spec → Template</button>
       </div>
     </section>
 
     <!-- Arguments -->
     <section class="card">
-      <h2>Arguments</h2>
+  <h2>Arguments</h2>
 
-      <div class="grid">
-        <div class="arg" *ngFor="let n of args; index as i">
-          <div class="arg-head">
-            <div><strong>{{ i + 1 }}. {{ n }}</strong></div>
-          </div>
-          <input [(ngModel)]="argValues[i]" [placeholder]="'Value for ' + n" />
-        </div>
+  <!-- New: quick add bar -->
+  <div class="row" style="gap: 8px; align-items: center; margin-bottom: 10px;">
+    <input
+      [(ngModel)]="newArgName"
+      placeholder="New argument name"
+      style="min-width: 220px;"
+    />
+    <button class="secondary" (click)="addArg(false)">Add</button>
+  </div>
+
+  <div class="grid">
+    <div class="arg" *ngFor="let n of args; index as i">
+      <div class="arg-head" style="display:flex; justify-content:space-between; gap:8px;">
+        <div><strong>{{ i + 1 }}. {{ n }}</strong></div>
+        <!-- New: per-row delete -->
+        <button class="chip" style="background:#fee2e2; color:#991b1b;" (click)="removeArg(i)" title="Remove argument">✕</button>
       </div>
+      <input [(ngModel)]="argValues[i]" [placeholder]="'Value for ' + n" />
+    </div>
+  </div>
 
-      <div class="row" style="margin-top: 10px; gap: 8px;">
-        <button class="secondary" (click)="clear()">Clear</button>
-        <button class="secondary" (click)="autofillNames()">Autofill Names</button>
-      </div>
+  <div class="row" style="margin-top: 10px; gap: 8px;">
+    <button class="secondary" (click)="clear()">Clear</button>
+    <button class="secondary" (click)="autofillNames()">Autofill Names</button>
+  </div>
+</section>
 
-    </section>
 
     <!-- Builder -->
     <section class="card">
-      <h2>Builder</h2>
+    <h2>Builder</h2>
 
-      <div class="row chips">
-        <button class="chip" (click)="insertToken('[%s]')">[%s]</button>
-        <button class="chip" (click)="insertToken('{ }')">&#123; &#125;</button>
-        <button class="chip" (click)="insertToken('+')">+</button>
-        <button class="chip" (click)="insertToken('[{<i>}+[%s]+{</i>}]')">&lt;i&gt;…&lt;/i&gt;</button>
-        <button class="chip" (click)="insertToken('[{&quot;}+[%s]+{&quot;}]')">“…”</button>
-        <button class="chip" (click)="insertToken('[{(}+[%s]+{)}]')">(…)</button>
-      </div>
+    <div class="row chips">
+      <button class="chip" (click)="insertToken('[%s]')">[%s]</button>
+      <button class="chip" (click)="insertToken('{ }')">&#123; &#125;</button>
+      <button class="chip" (click)="insertToken('+')">+</button>
+      <button class="chip" (click)="insertToken('[{<i>}+[%s]+{</i>}]')">&lt;i&gt;…&lt;/i&gt;</button>
+      <button class="chip" (click)="insertToken('[{&quot;}+[%s]+{&quot;}]')">“…”</button>
+      <button class="chip" (click)="insertToken('[{(}+[%s]+{)}]')">(…)</button>
+    </div>
 
-      <!-- Highlighter overlay for the TEMPLATE (not the spec) -->
-      <div class="syntax-container">
-        <pre #syntaxPre class="syntax-highlight mono" [innerHTML]="highlightedTemplate"></pre>
-        <textarea
-          class="syntax-input mono"
-          rows="8"
-          [ngModel]="template"
-          (ngModelChange)="onTemplateChange($event)"
-          (scroll)="syncScroll($event)"
-        ></textarea>
-      </div>
+    <div monacoEditor
+        class="monaco-host"
+        [value]="template"
+        (valueChange)="onMonacoChange($event)"
+        [getMarkers]="getMonacoMarkers">
+    </div>
 
+    <div class="issues">
+      <span class="pill" *ngIf="issues.length === 0">No issues</span>
+      <span class="pill bad" *ngFor="let m of issues">{{ m }}</span>
+    </div>
+  </section>
 
-      <div class="issues">
-        <span class="pill" *ngIf="issues.length === 0">No issues</span>
-        <span class="pill bad" *ngFor="let m of issues">{{ m }}</span>
-      </div>
-    </section>
 
     <!-- Preview -->
     <section class="card">
