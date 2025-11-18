@@ -1,9 +1,10 @@
-import { Component, viewChild } from '@angular/core';
+import { Component, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { CitationEngineService } from '../citation-engine.service';
-import { TemplateBuilder } from "../template-builder/template-builder";
+import { TemplateSyncService } from '../template-sync.service';
+import { TemplateBuilder } from '../template-builder/template-builder';
 
 interface ComboRow {
   label: string;
@@ -19,8 +20,6 @@ interface ComboRow {
   styleUrls: ['./lab.component.scss'],
 })
 export class LabComponent {
-  templateBuilderRef = viewChild.required(TemplateBuilder);
-
   // Template + rendering
   template = '';
   renderMarkdown = true;
@@ -34,7 +33,17 @@ export class LabComponent {
   nullMask: boolean[] = [];
   comboSelectMask: boolean[] = [];
 
-  constructor(private engine: CitationEngineService) {}
+  constructor(
+    private engine: CitationEngineService,
+    private templateSync: TemplateSyncService
+  ) {
+    effect(() => {
+      const vars = this.templateSync.variables();
+      const tmpl = this.templateSync.template();
+      this.setArguments(vars);
+      this.template = tmpl;
+    });
+  }
 
   /** Lint the current template for bracket / %s issues. */
   get issues(): string[] {

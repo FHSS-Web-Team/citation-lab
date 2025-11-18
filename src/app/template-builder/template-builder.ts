@@ -1,13 +1,16 @@
 import { Component, ElementRef, HostListener, computed, signal, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { CitationTemplate } from './../CitationTemplate/citation-template';
 import { CitationTemplateAddend } from './../CitationTemplate/citation-template-addend';
 import { CitationTemplateExpression } from './../CitationTemplate/citation-template-expression';
 import { CitationTemplateLiteral } from './../CitationTemplate/citation-template-literal';
 import { CitationTemplateVariable } from './../CitationTemplate/citation-template-variable';
+import { TemplateSyncService } from '../template-sync.service';
 
 @Component({
   selector: 'app-template-builder',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './template-builder.html',
   styleUrl: './template-builder.scss',
 })
@@ -41,7 +44,7 @@ export class TemplateBuilder {
   });
   protected readonly hasSelection = computed(() => this.selectedIndices().size > 0);
 
-  constructor() {
+  constructor(private sync: TemplateSyncService) {
     this.shortcutHandlers = {
       keyq: () => this.convertSelectionToLiteral(),
       keyw: () => this.convertSelectionToVariable(),
@@ -217,6 +220,7 @@ export class TemplateBuilder {
     this.parts.set([...this.template.getParts()]);
     this.templateOutput.set(this.template.stringify());
     this.undoAvailable.set(this.template.canUndo());
+    this.sync.setData(this.getVariables(), this.getTemplate());
   }
 
   private setError(message: string | null) {

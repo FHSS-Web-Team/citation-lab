@@ -1,8 +1,18 @@
 <div class="container">
-  <app-template-builder></app-template-builder>
+  <!-- Template helper (single instance) -->
+  <section class="card helper-card">
+    <div class="section-head centered">
+      <div>
+        <h2>Citation Template Helper</h2>
+        <div class="muted">Build your template once here; the lab auto-syncs arguments and template.</div>
+      </div>
+    </div>
+    <app-template-builder></app-template-builder>
+  </section>
+
   <div class="page-head">
     <h1>Citation Template Lab</h1>
-    <p class="muted lead">Feed in argument names, provide a template, and explore every combination on one screen.</p>
+    <p class="muted lead">Arguments and template auto-sync from the Template Builder; explore combinations here.</p>
   </div>
 
   <!-- Arguments -->
