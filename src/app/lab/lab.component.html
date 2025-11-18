@@ -9,7 +9,7 @@
     <p class="muted lead">Arguments and template auto-sync from the Template Builder; explore combinations here.</p>
   </div>
 
-  <ng-container *ngIf="view === 'lab'; else combosView">
+  <div [class.hidden]="view !== 'lab'">
     <div class="helper-wrap">
       <!-- Template helper (single instance) -->
       <app-template-builder></app-template-builder>
@@ -92,10 +92,10 @@
         <span class="pill bad" *ngFor="let m of issues">{{ m }}</span>
       </div>
     </section>
-  </ng-container>
+  </div>
 
   <!-- Combinations -->
-  <ng-template #combosView>
+  <div [class.hidden]="view !== 'combos'">
     <section class="card results-card">
       <div class="section-head">
         <div>
@@ -140,5 +140,5 @@
         <div class="empty-box muted">Add a template and selection to see combinations.</div>
       </ng-template>
     </section>
-  </ng-template>
+  </div>
 </div>

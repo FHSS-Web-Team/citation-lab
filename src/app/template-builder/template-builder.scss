@@ -82,6 +82,11 @@ textarea:focus { border-color: #9aa5b1; }
   color: #111;
   transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
 }
+.text-toolbar .icon {
+  display: inline-block;
+  margin-right: 6px;
+  line-height: 1;
+}
 .text-toolbar .lock-toggle[aria-pressed="false"] {
   background: linear-gradient(135deg, #0ea5e9, #2563eb);
   border-color: #2563eb;

@@ -50,6 +50,8 @@ h1 {
   box-shadow: 0 8px 18px rgba(148, 163, 184, 0.45);
 }
 
+.hidden { display: none !important; }
+
 /* Cards */
 .card {
   background: var(--card);

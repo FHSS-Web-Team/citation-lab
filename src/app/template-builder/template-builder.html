@@ -16,6 +16,7 @@
       (click)="toggleInputLock()"
       [attr.aria-pressed]="isInputLocked()"
     >
+      <span class="icon" aria-hidden="true">{{ isInputLocked() ? '🔓' : '🔒' }}</span>
       {{ isInputLocked() ? 'Unlock Input' : 'Lock Input' }}
     </button>
     <button
