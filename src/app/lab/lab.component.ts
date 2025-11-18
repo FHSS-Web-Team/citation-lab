@@ -21,6 +21,7 @@ interface ComboRow {
 })
 export class LabComponent {
   // Template + rendering
+  view: 'lab' | 'combos' = 'lab';
   template = '';
   renderMarkdown = true;
 

@@ -4,7 +4,10 @@
   margin: 28px auto;
   padding: 0 18px;
 }
-.page-head { margin-bottom: 12px; }
+.page-head {
+  margin-bottom: 12px;
+  text-align: center;
+}
 h1 {
   font-size: 28px;
   font-weight: 700;
@@ -12,6 +15,36 @@ h1 {
   margin: 0 0 4px;
 }
 .lead { margin: 0; }
+.tab-bar.top {
+  max-width: 1080px;
+  margin: 12px auto;
+  padding: 0 18px;
+}
+.tab-bar {
+  display: flex;
+  gap: 8px;
+  margin: 8px 0 12px;
+  justify-content: flex-end;
+}
+.tab-bar button {
+  min-width: 110px;
+  background: linear-gradient(135deg, #0f172a, #1f2937);
+  border-color: #0f172a;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.12);
+}
+.tab-bar button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.16);
+}
+.tab-bar button.secondary {
+  background: linear-gradient(135deg, #eef2ff, #e0f2fe);
+  color: #0f172a;
+  border-color: #d1d5db;
+  box-shadow: 0 4px 12px rgba(148, 163, 184, 0.35);
+}
+.tab-bar button.secondary:hover {
+  box-shadow: 0 8px 18px rgba(148, 163, 184, 0.45);
+}
 
 /* Cards */
 .card {
@@ -96,9 +129,12 @@ button.chip.danger { background: #fee2e2; color: #991b1b; }
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
-  padding: 4px 0;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #f8fafc;
 }
 .toggle input[type="checkbox"] {
   width: 16px;
