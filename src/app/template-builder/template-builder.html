@@ -1,0 +1,101 @@
+<header>
+  <h1>Citation Template Helper</h1>
+  <p>
+    Write your entire citation below, highlight any range of characters, and tag it as a literal or
+    variable. Then use the tempalte builder to begin wrapping expressions. Copy the citation template at the end.
+  </p>
+</header>
+
+<section class="text-editor">
+  <h2>Write &amp; Highlight</h2>
+  <textarea
+    #templateEditor
+    rows="4"
+    spellcheck="false"
+    [value]="textInput()"
+    [readOnly]="isInputLocked()"
+    (input)="handleTextInput($event)"
+    aria-label="Type the citation text, then select text ranges to tag them"
+  ></textarea>
+  <div class="text-toolbar">
+    <button
+      type="button"
+      class="lock-toggle"
+      (click)="toggleInputLock()"
+      [attr.aria-pressed]="isInputLocked()"
+    >
+      {{ isInputLocked() ? 'Unlock Input' : 'Lock Input' }}
+    </button>
+    <button
+      type="button"
+      (click)="removeBracketsFromInput()"
+      [disabled]="isInputLocked() || !textInput()"
+    >
+      Remove Brackets
+    </button>
+  </div>
+  <div class="text-actions">
+    <button type="button" (click)="convertSelectionToLiteral()">
+      Mark Selection Literal ({{ shortcutLabels.literal }})
+    </button>
+    <button type="button" (click)="convertSelectionToVariable()">
+      Mark Selection Variable ({{ shortcutLabels.variable }})
+    </button>
+  </div>
+</section>
+
+<section class="builder">
+  <h2>Template Builder</h2>
+
+  @if (getError()) {
+    <div class="status">
+      <span class="error">{{ getError() }}</span>
+    </div>
+  }
+
+  <div class="parts" [class.parts-empty]="!hasParts()">
+    @for (part of getParts(); track $index) {
+      <span
+        class="addend"
+        [class]="[getAddendType(part), isSelected($index) ? 'selected' : '']"
+        (click)="toggleSelection($index)"
+        (keydown.enter)="toggleSelection($index)"
+        (keydown.space)="toggleSelection($index); $event.preventDefault()"
+        role="button"
+        tabindex="0"
+      >
+        {{ part.toString() }}
+      </span>
+    }
+    @if (!hasParts()) {
+      <span class="placeholder">Type and highlight text above to get started.</span>
+    }
+  </div>
+
+  <div class="selection-actions">
+    <button type="button" (click)="wrapSelection()" [disabled]="!canWrapSelection()">
+      Wrap Selection as Expression ({{ shortcutLabels.wrap }})
+    </button>
+    <button type="button" (click)="undoLastChange()" [disabled]="!canUndo()">
+      Undo Last Change ({{ shortcutLabels.undo }})
+    </button>
+    <button type="button" (click)="clearSelection()" [disabled]="!hasSelection()">
+      Clear Selection ({{ shortcutLabels.clear }})
+    </button>
+  </div>
+</section>
+
+<section class="legend">
+  <strong>Legend:</strong>
+  <span class="badge literal">Literal</span>
+  <span class="badge variable">Variable</span>
+  <span class="badge expression">Expression</span>
+</section>
+
+<section class="output">
+  <div class="output-header">
+    <h2>Stringify Output</h2>
+    <button type="button" (click)="copyOutput()" [disabled]="!getOutput()">Copy to Clipboard</button>
+  </div>
+  <p>{{getOutput()}}</p>
+</section>

@@ -1,171 +1,131 @@
 <div class="container">
-  <h1>Citation Template Lab (Angular)</h1>
-
-  <!-- View toggles -->
-  <div class="row" style="margin-bottom: 12px;">
-    <button [class.secondary]="view!=='builder'" (click)="view='builder'">Builder</button>
-    <button [class.secondary]="view!=='combos'" (click)="view='combos'">Combinations</button>
+  <app-template-builder></app-template-builder>
+  <div class="page-head">
+    <h1>Citation Template Lab</h1>
+    <p class="muted lead">Feed in argument names, provide a template, and explore every combination on one screen.</p>
   </div>
 
-  <!-- ==================== BUILDER VIEW ==================== -->
-  <ng-container *ngIf="view === 'builder'">
-    <!-- Spec → Arguments -->
-    <section class="card">
-      <h2>Argument Pre-Fill</h2>
-      <p class="muted">Paste an existing formatted citation with [square brackets].</p>
-
-      <textarea
-        [(ngModel)]="specText"
-        class="mono"
-        rows="8"
-        placeholder="Paste the spec with [Placeholders] here">
-      </textarea>
-
-      <div class="row" style="margin-top: 10px;">
-        <button (click)="runExtract()">Extract → Args</button>
+  <!-- Arguments -->
+  <section class="card">
+    <div class="section-head">
+      <div>
+        <h2>Arguments</h2>
+        <div class="muted">Arguments are provided as a string array; you can still add/edit inline below.</div>
       </div>
-    </section>
+      <div class="section-actions">
+        <button class="secondary" (click)="clearValues()">Clear values</button>
+        <button class="secondary" (click)="autofillNames()">Autofill values</button>
+      </div>
+    </div>
 
-    <!-- Arguments -->
-    <section class="card">
-      <h2>Arguments</h2>
-
-      <!-- quick add bar -->
-      <div class="row" style="gap: 8px; align-items: center; margin-bottom: 10px;">
+    <div class="row actions">
+      <div class="row inline-add">
         <input
           [(ngModel)]="newArgName"
           placeholder="New argument name"
           style="min-width: 220px;"
         />
-        <button class="secondary" (click)="addArg(false)">Add</button>
+        <button class="secondary" (click)="addArg()">Add</button>
       </div>
+    </div>
 
+    <ng-container *ngIf="argNames.length; else noArgs">
       <div class="grid">
-        <div class="arg" *ngFor="let n of args; index as i">
-          <div class="arg-head" style="display:flex; justify-content:space-between; gap:8px;">
+        <div class="arg" *ngFor="let n of argNames; index as i">
+          <div class="arg-head">
             <div><strong>{{ i + 1 }}. {{ n }}</strong></div>
             <button
-              class="chip"
-              style="background:#fee2e2; color:#991b1b;"
+              class="chip danger"
               (click)="removeArg(i)"
               title="Remove argument">
               ✕
             </button>
           </div>
+          <label class="null-toggle">
+            <input type="checkbox" [(ngModel)]="nullMask[i]" />
+            <span>Pass null for this argument</span>
+          </label>
           <input [(ngModel)]="argValues[i]" [placeholder]="'Value for ' + n" />
         </div>
       </div>
+    </ng-container>
+    <ng-template #noArgs>
+      <div class="empty-box muted">No arguments yet. Paste a list or add one above.</div>
+    </ng-template>
+  </section>
 
-      <div class="row" style="margin-top: 10px; gap: 8px;">
-        <button class="secondary" (click)="clear()">Clear</button>
-        <button class="secondary" (click)="autofillNames()">Autofill Names</button>
-      </div>
-    </section>
-
-    <!-- Builder -->
-    <section class="card">
-      <h2>Builder</h2>
-
-      <!-- Visual-mode toolbar: operates on *visualText* -->
-      <div class="row chips">
-        <button class="chip" (click)="markSelectionAsExpr()">Mark expression</button>
-        <button class="chip" (click)="clearExprMarks()">Clear marks</button>
-        <button class="chip" (click)="foldSelection()">Fold selection</button>
-        <button class="chip" (click)="unfoldAll()">Unfold all</button>
-        <button class="chip" (click)="buildTemplateFromVisual()">Build template</button>
-      </div>
-
-      <!-- Monaco editor: user types REAL words here -->
-      <div class="editor-wrap">
-        <div
-          monacoEditor
-          class="monaco-host"
-          [value]="visualText"
-          (valueChange)="onMonacoChange($event)"
-          [getFoldHover]="getFoldHover">
+  <!-- Template + preview -->
+  <section class="card">
+    <div class="section-head centered">
+      <div>
+        <h2>Citation template</h2>
+        <div class="muted">
+          Use %s placeholders. Example:
+          <code class="mono">[[%s]+&#123;, &#125;+[%s]].</code>
         </div>
       </div>
+      <label class="toggle">
+        <input type="checkbox" [(ngModel)]="renderMarkdown" />
+        <span>Render output as Markdown</span>
+      </label>
+    </div>
 
-      <!-- Visual text, fully expanded (no [*]) -->
-      <div class="uncollapsed-box">
-        <div class="uncollapsed-head">Visual (uncollapsed)</div>
-        <pre class="mono uncollapsed-pre">{{ expandedVisual }}</pre>
+    <textarea
+      [(ngModel)]="template"
+      class="mono"
+      rows="4"
+      placeholder="Type your citation template here">
+    </textarea>
+
+    <div class="issues">
+      <span class="pill" *ngIf="issues.length === 0">No issues</span>
+      <span class="pill bad" *ngFor="let m of issues">{{ m }}</span>
+    </div>
+  </section>
+
+  <!-- Combinations -->
+  <section class="card results-card">
+    <div class="section-head">
+      <div>
+        <h2>Combinations</h2>
+        <div class="muted">Pick which arguments to vary; we’ll enumerate every non-empty subset.</div>
       </div>
-
-      <!-- Compiled template -->
-      <div class="uncollapsed-box">
-        <div class="uncollapsed-head">Template (compiled)</div>
-        <pre class="mono uncollapsed-pre">
-{{ template || '(click “Build template” to generate a citation template)' }}
-        </pre>
+      <div class="section-actions">
+        <div class="combo-summary">
+          Total: {{ comboCount }} combination<span *ngIf="comboCount !== 1">s</span>
+        </div>
       </div>
+    </div>
 
-      <!-- Issues from engine.lintTemplate(template) -->
-      <div class="issues">
-        <span class="pill" *ngIf="issues.length === 0">No issues</span>
-        <span class="pill bad" *ngFor="let m of issues">{{ m }}</span>
+    <ng-container *ngIf="argNames.length; else noComboArgs">
+      <div class="combo-grid">
+        <label class="combo-item" *ngFor="let n of argNames; index as i">
+          <input type="checkbox" [(ngModel)]="comboSelectMask[i]" />
+          <span>{{ n }}</span>
+        </label>
       </div>
-    </section>
+    </ng-container>
+    <ng-template #noComboArgs>
+      <div class="empty-box muted">Add arguments to enable combinations.</div>
+    </ng-template>
 
-    <!-- Preview -->
-    <section class="card">
-      <h2>Preview</h2>
+    <div class="space-y" *ngIf="comboRows.length; else emptyCombos">
+      <div class="result-item" *ngFor="let row of comboRows; index as idx">
+        <div class="label">{{ idx + 1 }}. [{{ row.label || '—' }}]</div>
 
-      <h3>What it should look like</h3>
-      <pre class="spec mono">{{ specText || '(no spec provided)' }}</pre>
-
-      <div class="row" style="justify-content: space-between; align-items: center; margin: 8px 0;">
-        <button class="secondary" (click)="copy()">Copy</button>
-      </div>
-
-      <h3>Current Citation</h3>
-
-      <div class="preview">
-        <ng-container *ngIf="(result || '').trim(); else emptyPreview">
-          <div *ngIf="showHTML; else plainPreview" class="mono" [innerHTML]="result"></div>
-          <ng-template #plainPreview>
-            <pre class="mono">{{ result }}</pre>
+        <ng-container *ngIf="(row.output || '').trim(); else emptyRow">
+          <div *ngIf="renderMarkdown; else plainRow" class="mono" [innerHTML]="renderMarkdownText(row.output)"></div>
+          <ng-template #plainRow>
+            <pre class="mono">{{ row.output }}</pre>
           </ng-template>
         </ng-container>
-        <ng-template #emptyPreview>
-          <div class="muted">(empty — no template built yet)</div>
+        <ng-template #emptyRow>
+          <div class="muted">(empty)</div>
         </ng-template>
       </div>
-    </section>
-
-    <!-- Diagnostics -->
-    <section class="card" *ngIf="diag">
-      <h2>Engine Tests</h2>
-      <div class="test" *ngFor="let d of diag" [class.pass]="d.pass" [class.fail]="!d.pass">
-        <div class="title">{{ d.pass ? 'PASS' : 'FAIL' }} — {{ d.name }}</div>
-        <div class="line"><b>want:</b> {{ d.want }}</div>
-        <div class="line"><b>got:</b> {{ d.got }}</div>
-      </div>
-    </section>
-  </ng-container>
-
-  <!-- ==================== COMBINATIONS VIEW ==================== -->
-  <ng-container *ngIf="view === 'combos'">
-    <section class="card">
-      <h3>Results</h3>
-      <div class="space-y">
-        <div class="arg" *ngFor="let row of comboRows; index as idx">
-          <div class="muted" style="font-size: 12px; margin-bottom: 6px;">
-            {{ idx + 1 }}. [{{ row.label || '—' }}]
-          </div>
-
-          <ng-container *ngIf="(row.output || '').trim(); else emptyRow">
-            <div *ngIf="showHTML; else plainRow" class="mono" [innerHTML]="row.output"></div>
-            <ng-template #plainRow>
-              <pre class="mono" style="white-space: pre-wrap; word-break: break-word; overflow-wrap: anywhere;">
-{{ row.output }}</pre>
-            </ng-template>
-          </ng-container>
-          <ng-template #emptyRow>
-            <div class="muted">(empty)</div>
-          </ng-template>
-        </div>
-      </div>
-    </section>
-  </ng-container>
+    </div>
+    <ng-template #emptyCombos>
+      <div class="empty-box muted">Add a template and selection to see combinations.</div>
+    </ng-template>
+  </section>
 </div>
