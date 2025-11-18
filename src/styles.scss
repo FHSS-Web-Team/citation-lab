@@ -32,3 +32,9 @@ input:focus-visible,
 textarea:focus-visible {
   box-shadow: var(--focus);
 }
+
+/* styles.scss (global) */
+.vb-expr {
+  background: rgba(59, 130, 246, 0.18);   /* light blue */
+  border-bottom: 2px solid #3b82f6;       /* bold blue underline */
+}

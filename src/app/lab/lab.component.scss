@@ -364,3 +364,18 @@ button.secondary {
   word-break: break-word;
   overflow-wrap: anywhere;
 }
+
+.mono       { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+.row        { display:flex; gap:8px; align-items:center; }
+.chips      { display:flex; flex-wrap:wrap; gap:8px; }
+.card       { background:#fff; border:1px solid #eef2f7; border-radius:14px; padding:16px; margin-bottom:16px; overflow:visible; }
+.muted      { color:#64748b; }
+button.chip { background:#0f172a; color:#fff; padding:6px 10px; border-radius:999px; font-size:13px; }
+
+
+/* Visual Builder decorations */
+
+.vb-lit  { background: rgba(245,158,11,.18); border-bottom: 2px solid #f59e0b; }
+
+/* Keep editor hover visible */
+.editor-wrap, .monaco-host, .card { overflow: visible; }

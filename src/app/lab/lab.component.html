@@ -28,79 +28,84 @@
 
     <!-- Arguments -->
     <section class="card">
-  <h2>Arguments</h2>
+      <h2>Arguments</h2>
 
-  <!-- New: quick add bar -->
-  <div class="row" style="gap: 8px; align-items: center; margin-bottom: 10px;">
-    <input
-      [(ngModel)]="newArgName"
-      placeholder="New argument name"
-      style="min-width: 220px;"
-    />
-    <button class="secondary" (click)="addArg(false)">Add</button>
-  </div>
-
-  <div class="grid">
-    <div class="arg" *ngFor="let n of args; index as i">
-      <div class="arg-head" style="display:flex; justify-content:space-between; gap:8px;">
-        <div><strong>{{ i + 1 }}. {{ n }}</strong></div>
-        <!-- New: per-row delete -->
-        <button class="chip" style="background:#fee2e2; color:#991b1b;" (click)="removeArg(i)" title="Remove argument">✕</button>
+      <!-- quick add bar -->
+      <div class="row" style="gap: 8px; align-items: center; margin-bottom: 10px;">
+        <input
+          [(ngModel)]="newArgName"
+          placeholder="New argument name"
+          style="min-width: 220px;"
+        />
+        <button class="secondary" (click)="addArg(false)">Add</button>
       </div>
-      <input [(ngModel)]="argValues[i]" [placeholder]="'Value for ' + n" />
-    </div>
-  </div>
 
-  <div class="row" style="margin-top: 10px; gap: 8px;">
-    <button class="secondary" (click)="clear()">Clear</button>
-    <button class="secondary" (click)="autofillNames()">Autofill Names</button>
-  </div>
-</section>
+      <div class="grid">
+        <div class="arg" *ngFor="let n of args; index as i">
+          <div class="arg-head" style="display:flex; justify-content:space-between; gap:8px;">
+            <div><strong>{{ i + 1 }}. {{ n }}</strong></div>
+            <button
+              class="chip"
+              style="background:#fee2e2; color:#991b1b;"
+              (click)="removeArg(i)"
+              title="Remove argument">
+              ✕
+            </button>
+          </div>
+          <input [(ngModel)]="argValues[i]" [placeholder]="'Value for ' + n" />
+        </div>
+      </div>
 
+      <div class="row" style="margin-top: 10px; gap: 8px;">
+        <button class="secondary" (click)="clear()">Clear</button>
+        <button class="secondary" (click)="autofillNames()">Autofill Names</button>
+      </div>
+    </section>
 
     <!-- Builder -->
     <section class="card">
-    <h2>Builder</h2>
+      <h2>Builder</h2>
 
-    <!-- Builder toolbar (add two buttons) -->
-    <div class="row chips">
-      <button class="chip" (click)="insertToken('[%s]')">[%s]</button>
-      <button class="chip" (click)="insertToken('{ }')">&#123; &#125;</button>
-      <button class="chip" (click)="insertToken('+')">+</button>
-      <button class="chip" (click)="insertToken('[{<i>}+[%s]+{</i>}]')">&lt;i&gt;…&lt;/i&gt;</button>
-      <button class="chip" (click)="insertToken('[{&quot;}+[%s]+{&quot;}]')">“…”</button>
-      <button class="chip" (click)="insertToken('[{(}+[%s]+{)}]')">(…)</button>
+      <!-- Visual-mode toolbar: operates on *visualText* -->
+      <div class="row chips">
+        <button class="chip" (click)="markSelectionAsExpr()">Mark expression</button>
+        <button class="chip" (click)="clearExprMarks()">Clear marks</button>
+        <button class="chip" (click)="foldSelection()">Fold selection</button>
+        <button class="chip" (click)="unfoldAll()">Unfold all</button>
+        <button class="chip" (click)="buildTemplateFromVisual()">Build template</button>
+      </div>
 
-      <!-- NEW -->
-      <button class="chip" (click)="foldSelection()">Fold selection</button>
-      <button class="chip" (click)="unfoldAll()">Unfold all</button>
-    </div>
+      <!-- Monaco editor: user types REAL words here -->
+      <div class="editor-wrap">
+        <div
+          monacoEditor
+          class="monaco-host"
+          [value]="visualText"
+          (valueChange)="onMonacoChange($event)"
+          [getFoldHover]="getFoldHover">
+        </div>
+      </div>
 
-    <!-- Monaco editor: pass fold hover provider -->
-    <div class="editor-wrap">
-      <div
-      monacoEditor
-      class="monaco-host"
-      [value]="template"
-      (valueChange)="onMonacoChange($event)"
-      [getMarkers]="getMonacoMarkers"
-      [getFoldHover]="getFoldHover">
-    </div>
-    </div>
+      <!-- Visual text, fully expanded (no [*]) -->
+      <div class="uncollapsed-box">
+        <div class="uncollapsed-head">Visual (uncollapsed)</div>
+        <pre class="mono uncollapsed-pre">{{ expandedVisual }}</pre>
+      </div>
 
-    <!-- Live Uncollapsed View -->
-    <div class="uncollapsed-box">
-      <div class="uncollapsed-head">Uncollapsed (live)</div>
-      <pre class="mono uncollapsed-pre">{{ expandedTemplate }}</pre>
-    </div>
-    
+      <!-- Compiled template -->
+      <div class="uncollapsed-box">
+        <div class="uncollapsed-head">Template (compiled)</div>
+        <pre class="mono uncollapsed-pre">
+{{ template || '(click “Build template” to generate a citation template)' }}
+        </pre>
+      </div>
 
-    <div class="issues">
-      <span class="pill" *ngIf="issues.length === 0">No issues</span>
-      <span class="pill bad" *ngFor="let m of issues">{{ m }}</span>
-    </div>
-  </section>
-
+      <!-- Issues from engine.lintTemplate(template) -->
+      <div class="issues">
+        <span class="pill" *ngIf="issues.length === 0">No issues</span>
+        <span class="pill bad" *ngFor="let m of issues">{{ m }}</span>
+      </div>
+    </section>
 
     <!-- Preview -->
     <section class="card">
@@ -123,7 +128,7 @@
           </ng-template>
         </ng-container>
         <ng-template #emptyPreview>
-          <div class="muted">(empty — all expressions collapsed)</div>
+          <div class="muted">(empty — no template built yet)</div>
         </ng-template>
       </div>
     </section>

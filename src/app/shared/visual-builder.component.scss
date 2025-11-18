@@ -1,0 +1,19 @@
+.vb-editor {
+  min-height: 140px;
+  line-height: 1.6;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #ffffff;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.seg.expr {
+  background: rgba(59, 130, 246, 0.14); /* blue-500 / 15% */
+  color: #1d4ed8;                        /* blue-700 */
+  padding: 1px 1px;
+  border-radius: 4px;
+}
+
+.seg.lit { color: #334155; }             /* slate-700 */

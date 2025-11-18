@@ -1,0 +1,34 @@
+<section class="card">
+  <h2>Visual Builder (select text → mark as expression)</h2>
+  <p class="muted">Tip: Type freely, then highlight parts to mark as <strong>Expression</strong>.</p>
+
+  <div class="row chips">
+    <button class="chip" (click)="toExpr()">Mark as expression</button>
+    <button class="chip" (click)="toLit()">Mark as literal</button>
+    <button class="chip" (click)="clearAll()">Clear</button>
+    <div class="muted" style="margin-left:auto">Expr count: {{ argNames.length }}</div>
+  </div>
+
+  <!-- Contenteditable surface -->
+  <div
+    #editor
+    class="vb-editor"
+    contenteditable="true"
+    spellcheck="false"
+    (input)="onInputText()">
+    <ng-container *ngFor="let s of doc; trackBy: trackById">
+      <span class="seg expr" *ngIf="isExpr(s)">{{ s.text }}</span>
+      <span class="seg lit"  *ngIf="isLit(s)">{{ s.text }}</span>
+    </ng-container>
+  </div>
+
+  <div class="row" style="margin-top:10px; gap:8px;">
+    <button (click)="sendToBuilder()">Send to Builder</button>
+  </div>
+</section>
+
+<section class="card">
+  <h3>Compiled Template</h3>
+  <pre class="mono">{{ compiledTemplate }}</pre>
+  <div class="muted">Args: {{ argNames.join(', ') || '—' }}</div>
+</section>
