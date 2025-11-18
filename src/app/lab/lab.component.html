@@ -23,6 +23,7 @@
           <div class="muted">Arguments are provided as a string array; you can still add/edit inline below.</div>
         </div>
         <div class="section-actions">
+          <button class="add-btn" (click)="addArg()">+ Add</button>
           <button class="secondary" (click)="clearValues()">Clear values</button>
           <button class="secondary" (click)="autofillNames()">Autofill values</button>
         </div>
@@ -35,7 +36,6 @@
             placeholder="New argument name"
             style="min-width: 220px;"
           />
-          <button class="secondary" (click)="addArg()">Add</button>
         </div>
       </div>
 
