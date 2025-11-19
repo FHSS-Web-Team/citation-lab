@@ -24,6 +24,7 @@ export class LabComponent {
   view: 'lab' | 'combos' = 'lab';
   template = '';
   renderMarkdown = true;
+  comboRowsCache: ComboRow[] = [];
 
   // Argument intake (external string array)
   newArgName = '';
@@ -44,6 +45,13 @@ export class LabComponent {
       this.setArguments(vars);
       this.template = tmpl;
     });
+  }
+
+  setView(next: 'lab' | 'combos'): void {
+    this.view = next;
+    if (next === 'combos') {
+      this.computeComboRows();
+    }
   }
 
   /** Lint the current template for bracket / %s issues. */
@@ -150,19 +158,26 @@ export class LabComponent {
     return k ? (1 << k) - 1 : 0;
   }
 
-  get comboRows(): ComboRow[] {
-    if (!this.template.trim()) return [];
+  private computeComboRows(): void {
+    if (!this.template.trim()) {
+      this.comboRowsCache = [];
+      return;
+    }
 
     const idxs = this.selectedIndices();
-    if (!idxs.length) return [];
+    if (!idxs.length) {
+      this.comboRowsCache = [];
+      return;
+    }
 
     const total = (1 << idxs.length) - 1;
-    if (total > 4096) {
-      return [{
+    if (total > 300000) {
+      this.comboRowsCache = [{
         label: '—',
         inputs: [],
-        output: `Too many combinations selected (${total}). Reduce selection to ≤ 4096.`,
+        output: `Too many combinations selected (${total}). Reduce selection to ≤ 300000.`,
       }];
+      return;
     }
 
     const rows: ComboRow[] = [];
@@ -181,7 +196,7 @@ export class LabComponent {
       const label = sub.map(i => this.argNames[i]).join(', ');
       rows.push({ label, inputs, output });
     }
-    return rows;
+    this.comboRowsCache = rows;
   }
 
   // ---------------------------------------------------------

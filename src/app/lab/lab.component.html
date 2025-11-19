@@ -1,7 +1,7 @@
 <div class="container">
   <div class="tab-bar top">
-    <button [class.secondary]="view !== 'lab'" (click)="view='lab'">Builder</button>
-    <button [class.secondary]="view !== 'combos'" (click)="view='combos'">Combinations</button>
+    <button [class.secondary]="view !== 'lab'" (click)="setView('lab')">Builder</button>
+    <button [class.secondary]="view !== 'combos'" (click)="setView('combos')">Combinations</button>
   </div>
 
   <div class="page-head centered">
@@ -121,8 +121,8 @@
         <div class="empty-box muted">Add arguments to enable combinations.</div>
       </ng-template>
 
-      <div class="space-y" *ngIf="comboRows.length; else emptyCombos">
-        <div class="result-item" *ngFor="let row of comboRows; index as idx">
+      <div class="space-y" *ngIf="comboRowsCache.length; else emptyCombos">
+        <div class="result-item" *ngFor="let row of comboRowsCache; index as idx">
           <div class="label">{{ idx + 1 }}. [{{ row.label || '—' }}]</div>
 
           <ng-container *ngIf="(row.output || '').trim(); else emptyRow">
