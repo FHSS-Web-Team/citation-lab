@@ -16,15 +16,15 @@
       (click)="toggleInputLock()"
       [attr.aria-pressed]="isInputLocked()"
     >
-      <span class="icon" aria-hidden="true">{{ isInputLocked() ? '🔓' : '🔒' }}</span>
-      {{ isInputLocked() ? 'Unlock Input' : 'Lock Input' }}
+      <span class="icon" aria-hidden="true">{{ isInputLocked() ? '🔒' : '🔓' }}</span>
+      {{ isInputLocked() ? 'Locked' : 'Unlocked' }}
     </button>
     <button
       type="button"
       (click)="removeBracketsFromInput()"
       [disabled]="isInputLocked() || !textInput()"
     >
-      Remove Brackets
+      Bracket -> Variable
     </button>
   </div>
   <div class="text-actions">

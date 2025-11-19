@@ -1,5 +1,4 @@
 import { CitationTemplateAddend } from "./citation-template-addend";
-import { CitationTemplateVariable } from "./citation-template-variable";
 
 export class CitationTemplateLiteral extends CitationTemplateAddend {
     constructor(value: string) {

@@ -1,15 +1,14 @@
 <div class="container">
-  <div class="tab-bar top">
-    <button [class.secondary]="view !== 'lab'" (click)="setView('lab')">Builder</button>
-    <button [class.secondary]="view !== 'combos'" (click)="setView('combos')">Combinations</button>
-  </div>
-
   <div class="page-head centered">
     <h1>Citation Template Lab</h1>
     <p class="muted lead">Arguments and template auto-sync from the Template Builder; explore combinations here.</p>
   </div>
 
   <div [class.hidden]="view !== 'lab'">
+    <div class="tab-bar inline">
+      <button [class.secondary]="view !== 'lab'" (click)="setView('lab')">Builder</button>
+      <button [class.secondary]="view !== 'combos'" (click)="setView('combos')">Combinations</button>
+    </div>
     <div class="helper-wrap">
       <!-- Template helper (single instance) -->
       <app-template-builder></app-template-builder>
@@ -20,22 +19,7 @@
       <div class="section-head">
         <div>
           <h2>Arguments</h2>
-          <div class="muted">Arguments are provided as a string array; you can still add/edit inline below.</div>
-        </div>
-        <div class="section-actions">
-          <button class="add-btn" (click)="addArg()">+ Add</button>
-          <button class="secondary" (click)="clearValues()">Clear values</button>
-          <button class="secondary" (click)="autofillNames()">Autofill values</button>
-        </div>
-      </div>
-
-      <div class="row actions">
-        <div class="row inline-add">
-          <input
-            [(ngModel)]="newArgName"
-            placeholder="New argument name"
-            style="min-width: 220px;"
-          />
+          <div class="muted">Arguments automatically sync and autofill from the Template Builder.</div>
         </div>
       </div>
 
@@ -44,18 +28,8 @@
           <div class="arg" *ngFor="let n of argNames; index as i">
             <div class="arg-head">
               <div><strong>{{ i + 1 }}. {{ n }}</strong></div>
-              <button
-                class="chip danger"
-                (click)="removeArg(i)"
-                title="Remove argument">
-                ✕
-              </button>
             </div>
-            <label class="null-toggle">
-              <input type="checkbox" [(ngModel)]="nullMask[i]" />
-              <span>Pass null for this argument</span>
-            </label>
-            <input [(ngModel)]="argValues[i]" [placeholder]="'Value for ' + n" />
+            
           </div>
         </div>
       </ng-container>
@@ -64,38 +38,14 @@
       </ng-template>
     </section>
 
-    <!-- Template -->
-    <section class="card">
-      <div class="section-head centered">
-        <div>
-          <h2>Citation template</h2>
-          <div class="muted">
-            Use %s placeholders. Example:
-            <code class="mono">[[%s]+&#123;, &#125;+[%s]].</code>
-          </div>
-        </div>
-        <label class="toggle">
-          <input type="checkbox" [(ngModel)]="renderMarkdown" />
-          <span>Render output as Markdown</span>
-        </label>
-      </div>
-
-      <textarea
-        [(ngModel)]="template"
-        class="mono"
-        rows="4"
-        placeholder="Type your citation template here">
-      </textarea>
-
-      <div class="issues">
-        <span class="pill" *ngIf="issues.length === 0">No issues</span>
-        <span class="pill bad" *ngFor="let m of issues">{{ m }}</span>
-      </div>
-    </section>
   </div>
 
   <!-- Combinations -->
   <div [class.hidden]="view !== 'combos'">
+    <div class="tab-bar inline">
+      <button [class.secondary]="view !== 'lab'" (click)="setView('lab')">Builder</button>
+      <button [class.secondary]="view !== 'combos'" (click)="setView('combos')">Combinations</button>
+    </div>
     <section class="card results-card">
       <div class="section-head">
         <div>
@@ -123,13 +73,9 @@
 
       <div class="space-y" *ngIf="comboRowsCache.length; else emptyCombos">
         <div class="result-item" *ngFor="let row of comboRowsCache; index as idx">
-          <div class="label">{{ idx + 1 }}. [{{ row.label || '—' }}]</div>
-
+          <div class="result-number">{{ idx + 1 }}.</div>
           <ng-container *ngIf="(row.output || '').trim(); else emptyRow">
-            <div *ngIf="renderMarkdown; else plainRow" class="mono" [innerHTML]="renderMarkdownText(row.output)"></div>
-            <ng-template #plainRow>
-              <pre class="mono">{{ row.output }}</pre>
-            </ng-template>
+            <div class="mono" [innerHTML]="renderMarkdownText(row.output)"></div>
           </ng-container>
           <ng-template #emptyRow>
             <div class="muted">(empty)</div>

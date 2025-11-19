@@ -198,14 +198,15 @@ export class TemplateBuilder {
       return;
     }
     const current = this.textInput();
-    if (!current) {
+    if (!current || (!current.includes('[') && !current.includes(']'))) {
       return;
     }
-    const cleaned = current.replace(/[\[\]]/g, '');
-    if (cleaned === current) {
-      return;
-    }
-    this.applyTextInputValue(cleaned);
+    const addends = this.convertBracketedTextToAddends(current);
+    this.template.replaceParts(addends, { recordHistory: false, resetHistory: true });
+    this.textInput.set(this.template.toString());
+    this.clearSelection();
+    this.setError(null);
+    this.refreshTemplateState();
   }
 
   protected convertSelectionToLiteral() {
@@ -332,8 +333,9 @@ export class TemplateBuilder {
   }
 
   private applyTextInputValue(value: string) {
-    this.textInput.set(value);
-    if (value.trim().length === 0) {
+    const normalized = value.replace(/\s*\r?\n+\s*/g, ' ');
+    this.textInput.set(normalized);
+    if (normalized.trim().length === 0) {
       this.template.replaceParts([], { recordHistory: false, resetHistory: true });
       this.clearSelection();
       this.setError(null);
@@ -341,11 +343,50 @@ export class TemplateBuilder {
       return;
     }
     this.template.replaceParts(
-      [new CitationTemplateLiteral(value)],
+      [new CitationTemplateLiteral(normalized)],
       { recordHistory: false, resetHistory: true }
     );
     this.clearSelection();
     this.setError(null);
     this.refreshTemplateState();
+  }
+
+  private convertBracketedTextToAddends(text: string): CitationTemplateAddend[] {
+    const parts: CitationTemplateAddend[] = [];
+    let buffer = '';
+    let i = 0;
+
+    while (i < text.length) {
+      const char = text[i];
+      if (char === '[') {
+        const closingIndex = text.indexOf(']', i + 1);
+        if (closingIndex === -1) {
+          buffer += text.slice(i);
+          break;
+        }
+        if (buffer) {
+          parts.push(new CitationTemplateLiteral(buffer));
+          buffer = '';
+        }
+        const variableName = text.slice(i + 1, closingIndex).trim();
+        if (variableName) {
+          parts.push(new CitationTemplateVariable(variableName));
+        }
+        i = closingIndex + 1;
+        continue;
+      }
+      buffer += char;
+      i++;
+    }
+
+    if (buffer) {
+      parts.push(new CitationTemplateLiteral(buffer));
+    }
+
+    if (!parts.length) {
+      return [new CitationTemplateLiteral(text.replace(/[\[\]]/g, ''))];
+    }
+
+    return parts;
   }
 }

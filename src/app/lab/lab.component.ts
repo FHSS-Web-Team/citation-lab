@@ -23,16 +23,10 @@ export class LabComponent {
   // Template + rendering
   view: 'lab' | 'combos' = 'lab';
   template = '';
-  renderMarkdown = true;
   comboRowsCache: ComboRow[] = [];
-
-  // Argument intake (external string array)
-  newArgName = '';
 
   // Argument state
   argNames: string[] = [];
-  argValues: string[] = [];
-  nullMask: boolean[] = [];
   comboSelectMask: boolean[] = [];
 
   constructor(
@@ -54,15 +48,9 @@ export class LabComponent {
     }
   }
 
-  /** Lint the current template for bracket / %s issues. */
-  get issues(): string[] {
-    if (!this.template.trim()) return [];
-    return this.engine.lintTemplate(this.template);
-  }
-
-  /** Apply nullMask to arg values. */
+  /** Prepared values always mirror argument names now. */
   get preparedValues(): (string | null)[] {
-    return this.argValues.map((v, i) => (this.nullMask[i] ? null : v));
+    return this.argNames.map((name) => name);
   }
 
   /** Final rendered citation from template + args. */
@@ -88,43 +76,7 @@ export class LabComponent {
   private setArguments(names: string[]): void {
     const clean = names.map((n) => `${n}`.trim()).filter(Boolean);
     this.argNames = clean;
-    this.argValues = clean.map((_, i) => this.argValues[i] ?? '');
-    this.nullMask  = clean.map((_, i) => this.nullMask[i] ?? false);
     this.syncComboMask();
-  }
-
-  addArg(): void {
-    const name = (this.newArgName || `Arg${this.argNames.length + 1}`).trim();
-    if (!name) return;
-
-    this.argNames        = [...this.argNames, name];
-    this.argValues       = [...this.argValues, ''];
-    this.nullMask        = [...this.nullMask, false];
-    this.comboSelectMask = [...this.comboSelectMask, true];
-
-    this.newArgName = '';
-    this.syncComboMask();
-  }
-
-  removeArg(i: number): void {
-    if (i < 0 || i >= this.argNames.length) return;
-    const rm = <T>(a: T[]) => a.slice(0, i).concat(a.slice(i + 1));
-
-    this.argNames        = rm(this.argNames);
-    this.argValues       = rm(this.argValues);
-    this.nullMask        = rm(this.nullMask);
-    this.comboSelectMask = rm(this.comboSelectMask);
-    this.syncComboMask();
-  }
-
-  autofillNames(): void {
-    this.argValues = this.argNames.map((n) => n);
-    this.nullMask  = this.argNames.map(() => false);
-  }
-
-  clearValues(): void {
-    this.argValues = this.argNames.map(() => '');
-    this.nullMask  = this.argNames.map(() => false);
   }
 
   private syncComboMask(): void {
@@ -183,7 +135,7 @@ export class LabComponent {
     const rows: ComboRow[] = [];
     for (const sub of this.subsets(idxs)) {
       const inputs = this.argNames.map((_, i) =>
-        sub.includes(i) ? (this.nullMask[i] ? null : this.argValues[i]) : null
+        sub.includes(i) ? this.argNames[i] : null
       );
 
       let output = '';
@@ -216,9 +168,9 @@ export class LabComponent {
     html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
     html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
     html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
-    // Convert blank lines to paragraphs and single newlines to <br>
-    const paragraphs = html.split(/\n{2,}/).map(p => p.replace(/\n/g, '<br>'));
-    return paragraphs.map(p => `<p>${p}</p>`).join('');
+    // Collapse newlines to spaces so each result renders on one line.
+    html = html.replace(/\s*\n+\s*/g, ' ');
+    return html;
   }
 
   async copy(): Promise<void> {

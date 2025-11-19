@@ -1,6 +1,5 @@
 /* Layout */
 .container {
-  max-width: 1080px;
   margin: 28px auto;
   padding: 0 18px;
 }
@@ -15,16 +14,14 @@ h1 {
   margin: 0 0 4px;
 }
 .lead { margin: 0; }
-.tab-bar.top {
-  max-width: 1080px;
-  margin: 12px auto;
-  padding: 0 18px;
-}
 .tab-bar {
   display: flex;
   gap: 8px;
   margin: 8px 0 12px;
   justify-content: flex-end;
+}
+.tab-bar.inline {
+  margin: 0 0 8px;
 }
 .tab-bar button {
   min-width: 110px;
@@ -264,17 +261,17 @@ button.chip.danger { background: #fee2e2; color: #991b1b; }
 
 .combo-summary { color: var(--muted); font-size: 13px; }
 
-.space-y > * + * { margin-top: 12px; }
+.space-y > * + * { margin-top: 10px; }
 
 .result-item {
-  padding: 0;
-  border: none;
-  background: transparent;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
 }
-.result-item .label {
+.result-number {
+  font-weight: 600;
   font-size: 12px;
-  color: var(--muted);
-  margin-bottom: 6px;
+  color: #0f172a;
 }
 .result-item .mono {
   white-space: pre-wrap;
@@ -283,7 +280,7 @@ button.chip.danger { background: #fee2e2; color: #991b1b; }
   background: #f8fafc;
   border: 1px solid var(--border);
   border-radius: 10px;
-  padding: 10px;
+  padding: 10px 12px;
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.4);
 }
 
