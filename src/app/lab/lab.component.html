@@ -71,7 +71,7 @@
         <div class="empty-box muted">Add arguments to enable combinations.</div>
       </ng-template>
 
-      <div class="space-y" *ngIf="comboRowsCache.length; else emptyCombos">
+      <!-- <div class="space-y" *ngIf="comboRowsCache.length; else emptyCombos">
         <div class="result-item" *ngFor="let row of comboRowsCache; index as idx">
           <div class="result-number">{{ idx + 1 }}.</div>
           <ng-container *ngIf="(row.output || '').trim(); else emptyRow">
@@ -81,7 +81,10 @@
             <div class="muted">(empty)</div>
           </ng-template>
         </div>
-      </div>
+      </div> -->
+      @for (item of comboRowsCache; track $index) {
+        <div class="mono" [innerHTML]="renderMarkdownText(item.output)"></div>
+      }
       <ng-template #emptyCombos>
         <div class="empty-box muted">Add a template and selection to see combinations.</div>
       </ng-template>
