@@ -56,6 +56,9 @@
           <div class="combo-summary">
             Total: {{ comboCount }} combination<span *ngIf="comboCount !== 1">s</span>
           </div>
+          <div class="muted" *ngIf="comboRowsCache.length">
+            Showing {{ comboRowsCache.length }} random combination<span *ngIf="comboRowsCache.length !== 1">s</span>.
+          </div>
         </div>
       </div>
 

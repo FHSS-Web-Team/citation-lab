@@ -20,6 +20,8 @@ interface ComboRow {
   styleUrls: ['./lab.component.scss'],
 })
 export class LabComponent {
+  private readonly RANDOM_COMBO_LIMIT = 1000;
+
   // Template + rendering
   view: 'lab' | 'combos' = 'lab';
   template = '';
@@ -107,7 +109,36 @@ export class LabComponent {
 
   get comboCount(): number {
     const k = this.selectedIndices().length;
-    return k ? (1 << k) - 1 : 0;
+    return k ? Math.pow(2, k) - 1 : 0;
+  }
+
+  private buildRowFromSubset(subset: number[]): ComboRow {
+    const active = new Set(subset);
+    const inputs = this.argNames.map((_, i) =>
+      active.has(i) ? this.argNames[i] : null
+    );
+
+    let output = '';
+    try {
+      output = this.engine.format(this.template, ...inputs);
+    } catch (e: any) {
+      output = `Engine error: ${e?.message ?? e}`;
+    }
+
+    const labelRaw = subset.map(i => this.argNames[i]).filter(Boolean).join(', ');
+    const label = labelRaw || '—';
+    return { label, inputs, output };
+  }
+
+  private randomSubset(idxs: number[]): number[] {
+    let subset: number[] = [];
+    while (!subset.length) {
+      subset = [];
+      for (const idx of idxs) {
+        if (Math.random() < 0.5) subset.push(idx);
+      }
+    }
+    return subset;
   }
 
   private computeComboRows(): void {
@@ -122,31 +153,29 @@ export class LabComponent {
       return;
     }
 
-    const total = (1 << idxs.length) - 1;
-    if (total > 300000) {
-      this.comboRowsCache = [{
-        label: '—',
-        inputs: [],
-        output: `Too many combinations selected (${total}). Reduce selection to ≤ 300000.`,
-      }];
+    const total = Math.pow(2, idxs.length) - 1;
+    const sampleCount = Math.min(this.RANDOM_COMBO_LIMIT, total);
+    if (!Number.isFinite(sampleCount) || sampleCount <= 0) {
+      this.comboRowsCache = [];
       return;
     }
 
     const rows: ComboRow[] = [];
-    for (const sub of this.subsets(idxs)) {
-      const inputs = this.argNames.map((_, i) =>
-        sub.includes(i) ? this.argNames[i] : null
-      );
-
-      let output = '';
-      try {
-        output = this.engine.format(this.template, ...inputs);
-      } catch (e: any) {
-        output = `Engine error: ${e?.message ?? e}`;
+    if (total <= this.RANDOM_COMBO_LIMIT) {
+      for (const sub of this.subsets(idxs)) {
+        rows.push(this.buildRowFromSubset(sub));
       }
+      this.comboRowsCache = rows;
+      return;
+    }
 
-      const label = sub.map(i => this.argNames[i]).join(', ');
-      rows.push({ label, inputs, output });
+    const seen = new Set<string>();
+    while (rows.length < sampleCount) {
+      const subset = this.randomSubset(idxs);
+      const key = subset.join(',');
+      if (seen.has(key)) continue;
+      seen.add(key);
+      rows.push(this.buildRowFromSubset(subset));
     }
     this.comboRowsCache = rows;
   }
