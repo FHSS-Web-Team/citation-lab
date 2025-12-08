@@ -39,9 +39,9 @@ export class CitationTemplate {
             throw 'End index must be integer.'
         }
     
-        // must be a proper bound (at least 2 range)
-        if (endIndex - startIndex < 1) {
-            throw 'End index must be at least one more than the start index.'
+        // must be a proper bound (non-negative range)
+        if (endIndex < startIndex) {
+            throw 'End index must be greater than or equal to the start index.'
         }
         
         // must be within the bounds of the template array

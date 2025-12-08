@@ -35,7 +35,7 @@ export class TemplateBuilder {
   private readonly shortcutHandlers: Record<string, () => void>;
   protected readonly canWrapSelection = computed(() => {
     const ordered = [...this.selectedIndices()].sort((a, b) => a - b);
-    if (ordered.length < 2) {
+    if (!ordered.length) {
       return false;
     }
     const first = ordered[0];
