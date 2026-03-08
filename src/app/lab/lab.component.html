@@ -1,96 +1,36 @@
-<div class="container">
-  <div class="page-head centered">
-    <h1>Citation Template Lab</h1>
-    <p class="muted lead">Arguments and template auto-sync from the Template Builder; explore combinations here.</p>
-  </div>
-
-  <div [class.hidden]="view !== 'lab'">
-    <div class="tab-bar inline">
-      <button [class.secondary]="view !== 'lab'" (click)="setView('lab')">Builder</button>
-      <button [class.secondary]="view !== 'combos'" (click)="setView('combos')">Combinations</button>
-    </div>
-    <div class="helper-wrap">
-      <!-- Template helper (single instance) -->
-      <app-template-builder></app-template-builder>
-    </div>
-
-    <!-- Arguments -->
-    <section class="card">
-      <div class="section-head">
-        <div>
-          <h2>Arguments</h2>
-          <div class="muted">Arguments automatically sync and autofill from the Template Builder.</div>
-        </div>
-      </div>
-
-      <ng-container *ngIf="argNames.length; else noArgs">
-        <div class="grid">
-          <div class="arg" *ngFor="let n of argNames; index as i">
-            <div class="arg-head">
-              <div><strong>{{ i + 1 }}. {{ n }}</strong></div>
-            </div>
-            
-          </div>
-        </div>
-      </ng-container>
-      <ng-template #noArgs>
-        <div class="empty-box muted">No arguments yet. Paste a list or add one above.</div>
-      </ng-template>
-    </section>
-
-  </div>
-
-  <!-- Combinations -->
-  <div [class.hidden]="view !== 'combos'">
-    <div class="tab-bar inline">
-      <button [class.secondary]="view !== 'lab'" (click)="setView('lab')">Builder</button>
-      <button [class.secondary]="view !== 'combos'" (click)="setView('combos')">Combinations</button>
-    </div>
-    <section class="card results-card">
-      <div class="section-head">
-        <div>
-          <h2>Combinations</h2>
-          <div class="muted">Pick which arguments to vary; we’ll enumerate every non-empty subset.</div>
-        </div>
-        <div class="section-actions">
-          <div class="combo-summary">
-            Total: {{ comboCount }} combination<span *ngIf="comboCount !== 1">s</span>
-          </div>
-          <div class="muted" *ngIf="comboRowsCache.length">
-            Showing {{ comboRowsCache.length }} random combination<span *ngIf="comboRowsCache.length !== 1">s</span>.
-          </div>
-        </div>
-      </div>
-
-      <ng-container *ngIf="argNames.length; else noComboArgs">
-        <div class="combo-grid">
-          <label class="combo-item" *ngFor="let n of argNames; index as i">
-            <input type="checkbox" [(ngModel)]="comboSelectMask[i]" />
-            <span>{{ n }}</span>
-          </label>
-        </div>
-      </ng-container>
-      <ng-template #noComboArgs>
-        <div class="empty-box muted">Add arguments to enable combinations.</div>
-      </ng-template>
-
-      <!-- <div class="space-y" *ngIf="comboRowsCache.length; else emptyCombos">
-        <div class="result-item" *ngFor="let row of comboRowsCache; index as idx">
-          <div class="result-number">{{ idx + 1 }}.</div>
-          <ng-container *ngIf="(row.output || '').trim(); else emptyRow">
-            <div class="mono" [innerHTML]="renderMarkdownText(row.output)"></div>
-          </ng-container>
-          <ng-template #emptyRow>
-            <div class="muted">(empty)</div>
-          </ng-template>
-        </div>
-      </div> -->
-      @for (item of comboRowsCache; track $index) {
-        <div class="mono" [innerHTML]="renderMarkdownText(item.output)"></div>
-      }
-      <ng-template #emptyCombos>
-        <div class="empty-box muted">Add a template and selection to see combinations.</div>
-      </ng-template>
-    </section>
-  </div>
+<div class="page-head centered">
+  <h1>Citation Template Lab</h1>
+  <p class="muted">Build a test citation templates.</p>
 </div>
+
+<app-template-builder></app-template-builder>
+
+<!-- Arguments -->
+<section class="card">
+  <div class="section-head">
+    <div>
+      <h2>Arguments</h2>
+      <div class="muted">
+        Arguments automatically sync and autofill from the Template Builder.
+      </div>
+    </div>
+  </div>
+
+  @if (arguments().length) {
+    <div class="grid">
+      @for (arg of arguments(); track $index; let idx = $index) {
+        <div class="arg">
+          <strong>{{ idx + 1 }}. {{ arg }}</strong>
+          <input
+            type="text"
+            (input)="handleArgumentInput($event, idx)"
+            [value]="values()[idx] ?? ''" />
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="empty-box muted">No arguments yet.</div>
+  }
+
+  <div class="result" [innerHTML]="renderCitation(result())"></div>
+</section>
