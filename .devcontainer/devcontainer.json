@@ -30,7 +30,6 @@
         "remote.autoForwardPorts": false
       },
       "extensions": [
-        "ms-azuretools.vscode-containers",
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
         "yoavbls.pretty-ts-errors",

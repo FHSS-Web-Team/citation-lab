@@ -5,6 +5,7 @@ import { LabComponent } from './lab/lab.component';
   selector: 'app-root',
   standalone: true,
   imports: [LabComponent],
-  template: `<app-lab></app-lab>`,
+  templateUrl: './app.html',
+  styleUrl: './app.scss',
 })
 export class AppComponent {}
