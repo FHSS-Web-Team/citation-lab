@@ -1,8 +1,8 @@
 import { Component, computed, inject, linkedSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { CitationEngineService } from '../citation-engine.service';
-import { TemplateSyncService } from '../template-sync.service';
+import { CitationEngineService } from '../../services/citation-engine.service';
+import { TemplateSyncService } from '../../services/template-sync.service';
 import { TemplateBuilder } from '../template-builder/template-builder';
 
 @Component({

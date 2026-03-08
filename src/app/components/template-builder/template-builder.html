@@ -28,10 +28,10 @@
   </div>
   <div class="text-actions">
     <button type="button" (click)="convertSelectionToLiteral()">
-      Mark Selection Literal ({{ shortcutLabels.literal }})
+      Mark Selection Literal
     </button>
     <button type="button" (click)="convertSelectionToVariable()">
-      Mark Selection Variable ({{ shortcutLabels.variable }})
+      Mark Selection Variable
     </button>
   </div>
 </section>
@@ -45,7 +45,7 @@
     </div>
   }
 
-  <div class="parts" [class.parts-empty]="!hasParts()">
+  <div class="parts" [class.parts-empty]="parts().length === 0">
     @for (part of parts(); track $index) {
       <span
         class="addend"
@@ -58,7 +58,7 @@
         {{ part.toString() }}
       </span>
     }
-    @if (!hasParts()) {
+    @if (parts().length === 0) {
       <span class="placeholder"
         >Type and highlight text above to get started.</span
       >
@@ -70,16 +70,19 @@
       type="button"
       (click)="wrapSelection()"
       [disabled]="!canWrapSelection()">
-      Wrap Selection as Expression ({{ shortcutLabels.wrap }})
+      Wrap Selection as Expression
     </button>
-    <button type="button" (click)="undoLastChange()" [disabled]="!canUndo()">
-      Undo Last Change ({{ shortcutLabels.undo }})
+    <button
+      type="button"
+      (click)="undoLastChange()"
+      [disabled]="!undoAvailable()">
+      Undo Last Change
     </button>
     <button
       type="button"
       (click)="clearSelection()"
       [disabled]="!hasSelection()">
-      Clear Selection ({{ shortcutLabels.clear }})
+      Clear Selection
     </button>
   </div>
 </section>
@@ -94,9 +97,9 @@
 <section class="output">
   <div class="output-header">
     <h2>Stringify Output</h2>
-    <button type="button" (click)="copyOutput()" [disabled]="!getOutput()">
+    <button type="button" (click)="copyOutput()" [disabled]="!templateOutput()">
       Copy to Clipboard
     </button>
   </div>
-  <p>{{ getOutput() }}</p>
+  <p>{{ templateOutput() }}</p>
 </section>

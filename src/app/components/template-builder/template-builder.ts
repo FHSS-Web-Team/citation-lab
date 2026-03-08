@@ -1,29 +1,30 @@
 import {
   Component,
-  ElementRef,
-  HostListener,
   computed,
   signal,
-  ViewChild,
+  inject,
+  viewChild,
+  ElementRef,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { CitationTemplate } from './../CitationTemplate/citation-template';
-import { CitationTemplateAddend } from './../CitationTemplate/citation-template-addend';
-import { CitationTemplateExpression } from './../CitationTemplate/citation-template-expression';
-import { CitationTemplateLiteral } from './../CitationTemplate/citation-template-literal';
-import { CitationTemplateVariable } from './../CitationTemplate/citation-template-variable';
-import { TemplateSyncService } from '../template-sync.service';
+import { CitationTemplate } from '../../CitationTemplate/citation-template';
+import { CitationTemplateAddend } from '../../CitationTemplate/citation-template-addend';
+import { CitationTemplateExpression } from '../../CitationTemplate/citation-template-expression';
+import { CitationTemplateLiteral } from '../../CitationTemplate/citation-template-literal';
+import { CitationTemplateVariable } from '../../CitationTemplate/citation-template-variable';
+import { TemplateSyncService } from '../../services/template-sync.service';
 
 @Component({
   selector: 'app-template-builder',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './template-builder.html',
   styleUrl: './template-builder.scss',
 })
 export class TemplateBuilder {
-  @ViewChild('templateEditor')
-  private templateEditor?: ElementRef<HTMLTextAreaElement>;
+  private sync = inject(TemplateSyncService);
+
+  private templateEditor =
+    viewChild.required<ElementRef<HTMLTextAreaElement>>('templateEditor');
 
   protected readonly template = new CitationTemplate();
   protected readonly parts = signal<CitationTemplateAddend[]>([]);
@@ -32,15 +33,7 @@ export class TemplateBuilder {
   protected readonly templateOutput = signal('');
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly undoAvailable = signal(false);
-  protected readonly shortcutLabels = {
-    literal: 'Ctrl+Alt+Q',
-    variable: 'Ctrl+Alt+W',
-    wrap: 'Ctrl+Alt+E',
-    undo: 'Ctrl+Alt+Z',
-    clear: 'Ctrl+Alt+A',
-  } as const;
   protected readonly inputLocked = signal(false);
-  private readonly shortcutHandlers: Record<string, () => void>;
   protected readonly canWrapSelection = computed(() => {
     const ordered = [...this.selectedIndices()].sort((a, b) => a - b);
     if (!ordered.length) {
@@ -54,23 +47,8 @@ export class TemplateBuilder {
     () => this.selectedIndices().size > 0
   );
 
-  constructor(private sync: TemplateSyncService) {
-    this.shortcutHandlers = {
-      keyq: () => this.convertSelectionToLiteral(),
-      keyw: () => this.convertSelectionToVariable(),
-      keye: () => this.wrapSelection(),
-      keyz: () => this.undoLastChange(),
-      keya: () => this.clearSelection(),
-    };
+  constructor() {
     this.refreshTemplateState();
-  }
-
-  getVariables(): string[] {
-    return this.template.getVariables();
-  }
-
-  getTemplate(): string {
-    return this.template.stringify();
   }
 
   protected toggleSelection(index: number) {
@@ -121,14 +99,6 @@ export class TemplateBuilder {
     return 'literal';
   }
 
-  protected getOutput() {
-    return this.templateOutput();
-  }
-
-  protected canUndo() {
-    return this.undoAvailable();
-  }
-
   protected undoLastChange() {
     if (!this.template.undo()) {
       return;
@@ -138,21 +108,8 @@ export class TemplateBuilder {
     this.refreshTemplateState();
   }
 
-  @HostListener('window:keydown', ['$event'])
-  protected handleShortcut(event: KeyboardEvent) {
-    if (!event.ctrlKey || !event.altKey || event.metaKey) {
-      return;
-    }
-    const handler = this.shortcutHandlers[event.code?.toLowerCase()];
-    if (!handler) {
-      return;
-    }
-    event.preventDefault();
-    handler();
-  }
-
   protected copyOutput() {
-    const output = this.getOutput();
+    const output = this.templateOutput();
     if (!output) {
       this.setError('Nothing to copy yet.');
       return;
@@ -172,10 +129,6 @@ export class TemplateBuilder {
     this.setError('Clipboard API not available in this browser.');
   }
 
-  protected hasParts() {
-    return this.parts().length > 0;
-  }
-
   protected handleTextInput(event: Event) {
     if (this.inputLocked()) {
       (event.target as HTMLTextAreaElement | null)?.blur();
@@ -188,7 +141,7 @@ export class TemplateBuilder {
   protected toggleInputLock() {
     this.inputLocked.set(!this.inputLocked());
     if (this.inputLocked()) {
-      this.templateEditor?.nativeElement?.blur();
+      this.templateEditor().nativeElement.blur();
     }
   }
 
@@ -223,7 +176,7 @@ export class TemplateBuilder {
     this.parts.set([...this.template.getParts()]);
     this.templateOutput.set(this.template.stringify());
     this.undoAvailable.set(this.template.canUndo());
-    this.sync.setData(this.getVariables(), this.getTemplate());
+    this.sync.setData(this.template.getVariables(), this.template.stringify());
   }
 
   private setError(message: string | null) {
@@ -329,10 +282,7 @@ export class TemplateBuilder {
   }
 
   private getCurrentSelection() {
-    const element = this.templateEditor?.nativeElement;
-    if (!element) {
-      return null;
-    }
+    const element = this.templateEditor().nativeElement;
     return {
       start: element.selectionStart ?? 0,
       end: element.selectionEnd ?? 0,
