@@ -1,18 +1,11 @@
-import { CitationTemplateAddend } from "./citation-template-addend";
+import { CitationTemplateAddend } from './citation-template-addend';
 
 export class CitationTemplateLiteral extends CitationTemplateAddend {
-    constructor(value: string) {
-        super(value, `{${
-            value
-            .replaceAll('[', '\\\\[')
-            .replaceAll(']', '\\\\]')
-            .replaceAll('{', '\\\\{')
-            .replaceAll('}', '\\\\}')
-        }}`)
-    }
+  constructor(value: string) {
+    super(value, `${value.replaceAll('[', '\\\\[').replaceAll(']', '\\\\]')}`);
+  }
 
-    override getVariables(): string[] {
-      return [];
-    }
-
+  override getVariables(): string[] {
+    return [];
+  }
 }
