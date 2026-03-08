@@ -52,4 +52,15 @@ export class LabComponent {
     html = html.replace(/\s*\n+\s*/g, ' ');
     return `<p>${html}</p>`;
   }
+
+  protected copyResult() {
+    if (
+      navigator?.clipboard &&
+      typeof navigator.clipboard.writeText === 'function'
+    ) {
+      navigator.clipboard.writeText(this.result());
+      return;
+    }
+    console.warn('Clipboard API not available in this browser.');
+  }
 }

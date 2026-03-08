@@ -31,6 +31,23 @@
   } @else {
     <div class="empty-box muted">No arguments yet.</div>
   }
+</section>
 
+<section class="card">
+  <div class="section-head">
+    <div>
+      <h2>Final Citation</h2>
+      <div class="muted">
+        The result of the given arguments being applied to the citation
+        template.
+      </div>
+    </div>
+    <button
+      type="button"
+      (click)="copyResult()"
+      [disabled]="result().trim() === ''">
+      Copy to Clipboard
+    </button>
+  </div>
   <div class="result" [innerHTML]="renderCitation(result())"></div>
 </section>
