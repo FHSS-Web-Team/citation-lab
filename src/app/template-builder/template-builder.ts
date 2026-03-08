@@ -1,4 +1,11 @@
-import { Component, ElementRef, HostListener, computed, signal, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  computed,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CitationTemplate } from './../CitationTemplate/citation-template';
 import { CitationTemplateAddend } from './../CitationTemplate/citation-template-addend';
@@ -15,7 +22,8 @@ import { TemplateSyncService } from '../template-sync.service';
   styleUrl: './template-builder.scss',
 })
 export class TemplateBuilder {
-@ViewChild('templateEditor') private templateEditor?: ElementRef<HTMLTextAreaElement>;
+  @ViewChild('templateEditor')
+  private templateEditor?: ElementRef<HTMLTextAreaElement>;
 
   protected readonly template = new CitationTemplate();
   protected readonly parts = signal<CitationTemplateAddend[]>([]);
@@ -42,7 +50,9 @@ export class TemplateBuilder {
     const last = ordered[ordered.length - 1];
     return last - first === ordered.length - 1;
   });
-  protected readonly hasSelection = computed(() => this.selectedIndices().size > 0);
+  protected readonly hasSelection = computed(
+    () => this.selectedIndices().size > 0
+  );
 
   constructor(private sync: TemplateSyncService) {
     this.shortcutHandlers = {
@@ -60,7 +70,7 @@ export class TemplateBuilder {
   }
 
   getTemplate(): string {
-    return this.template.stringify()
+    return this.template.stringify();
   }
 
   protected toggleSelection(index: number) {
@@ -96,11 +106,9 @@ export class TemplateBuilder {
     }
   }
 
-  protected getParts() {
-    return this.parts();
-  }
-
-  protected getAddendType(addend: CitationTemplateAddend): 'literal' | 'variable' | 'expression' {
+  protected getAddendType(
+    addend: CitationTemplateAddend
+  ): 'literal' | 'variable' | 'expression' {
     if (addend instanceof CitationTemplateLiteral) {
       return 'literal';
     }
@@ -111,10 +119,6 @@ export class TemplateBuilder {
       return 'expression';
     }
     return 'literal';
-  }
-
-  protected trackByIndex(index: number) {
-    return index;
   }
 
   protected getOutput() {
@@ -153,7 +157,10 @@ export class TemplateBuilder {
       this.setError('Nothing to copy yet.');
       return;
     }
-    if (navigator?.clipboard && typeof navigator.clipboard.writeText === 'function') {
+    if (
+      navigator?.clipboard &&
+      typeof navigator.clipboard.writeText === 'function'
+    ) {
       navigator.clipboard
         .writeText(output)
         .then(() => this.setError(null))
@@ -166,15 +173,11 @@ export class TemplateBuilder {
   }
 
   protected hasParts() {
-    return this.getParts().length > 0;
-  }
-
-  protected getError() {
-    return this.errorMessage();
+    return this.parts().length > 0;
   }
 
   protected handleTextInput(event: Event) {
-    if (this.isInputLocked()) {
+    if (this.inputLocked()) {
       (event.target as HTMLTextAreaElement | null)?.blur();
       return;
     }
@@ -184,17 +187,13 @@ export class TemplateBuilder {
 
   protected toggleInputLock() {
     this.inputLocked.set(!this.inputLocked());
-    if (this.isInputLocked()) {
+    if (this.inputLocked()) {
       this.templateEditor?.nativeElement?.blur();
     }
   }
 
-  protected isInputLocked() {
-    return this.inputLocked();
-  }
-
   protected removeBracketsFromInput() {
-    if (this.isInputLocked()) {
+    if (this.inputLocked()) {
       return;
     }
     const current = this.textInput();
@@ -202,7 +201,10 @@ export class TemplateBuilder {
       return;
     }
     const addends = this.convertBracketedTextToAddends(current);
-    this.template.replaceParts(addends, { recordHistory: false, resetHistory: true });
+    this.template.setTemplate(addends, {
+      recordHistory: false,
+      resetHistory: true,
+    });
     this.textInput.set(this.template.toString());
     this.clearSelection();
     this.setError(null);
@@ -272,7 +274,9 @@ export class TemplateBuilder {
       }
 
       if (!(addend instanceof CitationTemplateLiteral)) {
-        this.setError('Selection can only include literal text. Adjust your highlight and try again.');
+        this.setError(
+          'Selection can only include literal text. Adjust your highlight and try again.'
+        );
         return;
       }
 
@@ -311,7 +315,7 @@ export class TemplateBuilder {
       return;
     }
 
-    this.template.replaceParts(nextParts);
+    this.template.setTemplate(nextParts);
     this.clearSelection();
     this.setError(null);
     this.refreshTemplateState();
@@ -329,29 +333,37 @@ export class TemplateBuilder {
     if (!element) {
       return null;
     }
-    return { start: element.selectionStart ?? 0, end: element.selectionEnd ?? 0 };
+    return {
+      start: element.selectionStart ?? 0,
+      end: element.selectionEnd ?? 0,
+    };
   }
 
   private applyTextInputValue(value: string) {
     const normalized = value.replace(/\s*\r?\n+\s*/g, ' ');
     this.textInput.set(normalized);
     if (normalized.trim().length === 0) {
-      this.template.replaceParts([], { recordHistory: false, resetHistory: true });
+      this.template.setTemplate([], {
+        recordHistory: false,
+        resetHistory: true,
+      });
       this.clearSelection();
       this.setError(null);
       this.refreshTemplateState();
       return;
     }
-    this.template.replaceParts(
-      [new CitationTemplateLiteral(normalized)],
-      { recordHistory: false, resetHistory: true }
-    );
+    this.template.setTemplate([new CitationTemplateLiteral(normalized)], {
+      recordHistory: false,
+      resetHistory: true,
+    });
     this.clearSelection();
     this.setError(null);
     this.refreshTemplateState();
   }
 
-  private convertBracketedTextToAddends(text: string): CitationTemplateAddend[] {
+  private convertBracketedTextToAddends(
+    text: string
+  ): CitationTemplateAddend[] {
     const parts: CitationTemplateAddend[] = [];
     let buffer = '';
     let i = 0;

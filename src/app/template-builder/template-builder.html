@@ -5,25 +5,24 @@
     rows="4"
     spellcheck="false"
     [value]="textInput()"
-    [readOnly]="isInputLocked()"
+    [readOnly]="inputLocked()"
     (input)="handleTextInput($event)"
-    aria-label="Type the citation text, then select text ranges to tag them"
-  ></textarea>
+    aria-label="Type the citation text, then select text ranges to tag them"></textarea>
   <div class="text-toolbar">
     <button
       type="button"
       class="lock-toggle"
       (click)="toggleInputLock()"
-      [attr.aria-pressed]="isInputLocked()"
-    >
-      <span class="icon" aria-hidden="true">{{ isInputLocked() ? '🔒' : '🔓' }}</span>
-      {{ isInputLocked() ? 'Locked' : 'Unlocked' }}
+      [attr.aria-pressed]="inputLocked()">
+      <span class="icon" aria-hidden="true">{{
+        inputLocked() ? '🔒' : '🔓'
+      }}</span>
+      {{ inputLocked() ? 'Locked' : 'Unlocked' }}
     </button>
     <button
       type="button"
       (click)="removeBracketsFromInput()"
-      [disabled]="isInputLocked() || !textInput()"
-    >
+      [disabled]="inputLocked() || !textInput()">
       Bracket -> Variable
     </button>
   </div>
@@ -40,14 +39,14 @@
 <section class="builder">
   <h2>Template Builder</h2>
 
-  @if (getError()) {
+  @if (errorMessage()) {
     <div class="status">
-      <span class="error">{{ getError() }}</span>
+      <span class="error">{{ errorMessage() }}</span>
     </div>
   }
 
   <div class="parts" [class.parts-empty]="!hasParts()">
-    @for (part of getParts(); track $index) {
+    @for (part of parts(); track $index) {
       <span
         class="addend"
         [class]="[getAddendType(part), isSelected($index) ? 'selected' : '']"
@@ -55,24 +54,31 @@
         (keydown.enter)="toggleSelection($index)"
         (keydown.space)="toggleSelection($index); $event.preventDefault()"
         role="button"
-        tabindex="0"
-      >
+        tabindex="0">
         {{ part.toString() }}
       </span>
     }
     @if (!hasParts()) {
-      <span class="placeholder">Type and highlight text above to get started.</span>
+      <span class="placeholder"
+        >Type and highlight text above to get started.</span
+      >
     }
   </div>
 
   <div class="selection-actions">
-    <button type="button" (click)="wrapSelection()" [disabled]="!canWrapSelection()">
+    <button
+      type="button"
+      (click)="wrapSelection()"
+      [disabled]="!canWrapSelection()">
       Wrap Selection as Expression ({{ shortcutLabels.wrap }})
     </button>
     <button type="button" (click)="undoLastChange()" [disabled]="!canUndo()">
       Undo Last Change ({{ shortcutLabels.undo }})
     </button>
-    <button type="button" (click)="clearSelection()" [disabled]="!hasSelection()">
+    <button
+      type="button"
+      (click)="clearSelection()"
+      [disabled]="!hasSelection()">
       Clear Selection ({{ shortcutLabels.clear }})
     </button>
   </div>
@@ -88,7 +94,9 @@
 <section class="output">
   <div class="output-header">
     <h2>Stringify Output</h2>
-    <button type="button" (click)="copyOutput()" [disabled]="!getOutput()">Copy to Clipboard</button>
+    <button type="button" (click)="copyOutput()" [disabled]="!getOutput()">
+      Copy to Clipboard
+    </button>
   </div>
-  <p>{{getOutput()}}</p>
+  <p>{{ getOutput() }}</p>
 </section>

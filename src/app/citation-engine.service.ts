@@ -16,7 +16,6 @@ export class CitationEngineService {
 
   private evalExpr(expr: string): string {
     const statement = this.parseStatement(expr);
-    console.log(statement);
 
     const addendContents: string[] = [];
     const expressions: string[] = [];
@@ -42,7 +41,6 @@ export class CitationEngineService {
 
     for (let i = 0; i < expression.length; i++) {
       const ch = expression.charAt(i);
-      console.log(ch);
 
       // handle escapes for [ ] \
       if (
@@ -52,7 +50,6 @@ export class CitationEngineService {
           expression.charAt(i + 1) === ']' ||
           expression.charAt(i + 1) === '\\')
       ) {
-        console.log('escape', expression.charAt(i + 1));
         i++;
         currentAddend += expression.charAt(i);
       } else {
@@ -63,7 +60,6 @@ export class CitationEngineService {
 
       // end of expression
       if (insideExpression && bracketCount === 0) {
-        console.log('end of expression');
         statement.push(currentAddend);
         currentAddend = '';
         insideExpression = expression.charAt(i + 1) === '[';
@@ -73,7 +69,6 @@ export class CitationEngineService {
         !insideExpression &&
         (expression.charAt(i + 1) === '[' || i === expression.length - 1)
       ) {
-        console.log('end of literal');
         statement.push(currentAddend);
         currentAddend = '';
         insideExpression = expression.charAt(i + 1) === '[';
