@@ -25,7 +25,9 @@ export class CitationEngineService {
         expressions.push(inner);
         addendContents.push(inner);
       } else {
-        addendContents.push(addend);
+        // remove escape characters
+        const escapeRemoved = addend.replaceAll('\\', '');
+        addendContents.push(escapeRemoved);
       }
     }
     return expressions.some(e => e === '')
@@ -41,10 +43,10 @@ export class CitationEngineService {
 
     for (let i = 0; i < expression.length; i++) {
       const ch = expression.charAt(i);
+      currentAddend += ch;
 
       // handle escapes for [ ] \
       if (
-        !insideExpression &&
         ch === '\\' &&
         (expression.charAt(i + 1) === '[' ||
           expression.charAt(i + 1) === ']' ||
@@ -53,7 +55,6 @@ export class CitationEngineService {
         i++;
         currentAddend += expression.charAt(i);
       } else {
-        currentAddend += ch;
         if (ch === '[') bracketCount++;
         if (ch === ']') bracketCount--;
       }
