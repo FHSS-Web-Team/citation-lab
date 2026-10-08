@@ -7,6 +7,10 @@
   "service": "devcontainer",
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
 
+  "features": {
+    "ghcr.io/stu-bell/devcontainer-features/node:0": {}
+  },
+
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   "forwardPorts": [4200],
   "portsAttributes": {
